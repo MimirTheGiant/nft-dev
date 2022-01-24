@@ -86,17 +86,34 @@ const App = () => {
     }
   };
 
-  /* if there is input, print out the GIF link,else empty*/ 
+  /* im able to submit a link, approve the tx via phantom*/ 
   const sendGif = async () => {
-    if(inputValue.length > 0 ){
-      console.log('Gif link: ', inputValue);
-      setInputValue([...gifList, inputValue]);
-      setInputValue('');
-    }else{
-      console.log('Empty input. Try again.');
+    if (inputValue.length === 0) {
+      console.log("No gif link given!")
+      return
+    }
+    setInputValue('');
+    console.log('Gif link:', inputValue);
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+  
+      await program.rpc.addGif(inputValue, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("GIF successfully sent to program", inputValue)
+  
+      await getGifList();
+    } catch (error) {
+      console.log("Error sending GIF:", error)
     }
   };
 
+
+  
 
 /* for submit box*/ 
   const onInputChange = (event) => {
